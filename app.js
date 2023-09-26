@@ -58,6 +58,7 @@ function main() {
         console.log('4. Completar Tareas ');
         console.log(' ');
         console.log('5. Salir ');
+        
         console.log(' ');
 
         const opciones = readline.questionInt('selecione una Opcion: ');
