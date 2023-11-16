@@ -3,49 +3,70 @@ const readline = require('readline-sync');
 // Lista de tareas
 const tasks = [];
 
-function addTarea(){
-    console.log(' ');
-    const addTareas = readline.question('Anade una tarea: ');
-    tasks.push({addTareas, completado: false});
+function addTarea() {
+    return new Promise((resolve, reject) => {
+        console.log(' ');
+        const addTareas = readline.question('Anade una tarea: ');
+        console.log('Cargando....')
+        setTimeout(() => {
+            tasks.push({ addTareas, completado: false });
+            resolve(addTareas);
+        }, 3000);
+    });
 }
 
-function mostrarTarea(){
+async function addTareaAsync() {
+    try {
+        let miTareaAsync = await addTarea();
+        console.log('Tarea anadida: ' + miTareaAsync);
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+function mostrarTarea() {
     console.log(' ');
     console.log(" Tareas: ");
-    tasks.map((tasks, index)=>{//recorro todo el array para mostrar tareas
-        const statusTarea = tasks.completado ? 'Completada: ' : 'No Completada: '
-        console.log(`${index + 1}. ${statusTarea} ${tasks.addTareas}`);
+    tasks.forEach((task, index) => {
+        const statusTarea = task.completado ? 'Completada: ' : 'No Completada: ';
+        console.log(`${index + 1}. ${statusTarea} ${task.addTareas}`);
         console.log(' ');
     });
 }
 
-function eliminarTarea(){
-    mostrarTarea();//Muestro todas las tareas
-    console.log(' ');
-    const indiceTarea =  readline.question('Que tarea quiere eliminar: ');
-    console.log(' ');
-    if (indiceTarea >= 0 && indiceTarea < tasks.length) {//si el indice es mayor a 0 y esta dentro del lenght de task entra
-        tasks.splice(indiceTarea, 1);
-        console.log("Tarea Elimnada");
-    }else{
-        console.log("Tarea no encontrada");
-    }
+function eliminarTarea() {
+    return new Promise((resolve, reject) => {
+        mostrarTarea();
+        console.log(' ');
+        const indiceTarea = readline.question('Que tarea quiere eliminar: ');
+        console.log(' ');
+
+        if (indiceTarea >= 0 && indiceTarea < tasks.length) {
+            tasks.splice(indiceTarea, 1);
+            resolve('Tarea Eliminada');
+        } else {
+            reject('Tarea no encontrada');
+        }
+    });
 }
 
-function completarTarea(){
-    mostrarTarea();
-    console.log(' ');
-    const indiceTarea =  readline.questionInt('Que tarea quiere completar: ') - 1;
-    console.log(' ');
-    if(indiceTarea >= 0 && indiceTarea< tasks.length){
-        tasks[indiceTarea].completado = true;
-        console.log("Tarea marcada como completa");
-    }else{
-        console.log("no entra ?");
-    }
+function completarTarea() {
+    return new Promise((resolve, reject) => {
+        mostrarTarea();
+        console.log(' ');
+        const indiceTarea = readline.questionInt('Que tarea quiere completar? ') - 1;
+        console.log(' ');
+
+        if (indiceTarea >= 0 && indiceTarea < tasks.length) {
+            tasks[indiceTarea].completado = true;
+            resolve('Tarea marcada como completa');
+        } else {
+            reject('Tarea no encontrada');
+        }
+    });
 }
 
-function main() {
+async function main() {
     while (true) {
         console.log('Opciones ');
         console.log(' ');
@@ -60,21 +81,32 @@ function main() {
         console.log('5. Salir ');
         console.log(' ');
 
-        const opciones = readline.questionInt('selecione una Opcion: ');
+        const opciones = readline.questionInt('Seleccione una Opcion: ');
         console.log(' ');
 
-        switch(opciones){
+        switch (opciones) {
             case 1:
-                addTarea();
+                await addTareaAsync();
+                console.log('Tarea anadida exitosamente');
                 break;
             case 2:
                 mostrarTarea();
                 break;
             case 3:
-                eliminarTarea();
+                try {
+                    const message = await eliminarTarea();
+                    console.log(message);
+                } catch (error) {
+                    console.error('Error al eliminar tarea:', error);
+                }
                 break;
             case 4:
-                completarTarea();
+                try {
+                    const message = await completarTarea();
+                    console.log(message);
+                } catch (error) {
+                    console.error('Error al completar tarea:', error);
+                }
                 break;
             case 5:
                 return;
